@@ -180,64 +180,79 @@ public class HttpEngine {
    * writing the request body if it exists.
    */
   public final void sendRequest() throws IOException {
+    System.out.println("sendRequest() - 1");
     if (responseSource != null) return; // Already sent.
     if (transport != null) throw new IllegalStateException();
 
     Request request = networkRequest(userRequest);
 
+    System.out.println("sendRequest() - 2");
     OkResponseCache responseCache = client.getOkResponseCache();
+    System.out.println("sendRequest() - 3");
     Response cacheCandidate = responseCache != null
         ? responseCache.get(request)
         : null;
     long now = System.currentTimeMillis();
+    System.out.println("sendRequest() - 4");
     CacheStrategy cacheStrategy = new CacheStrategy.Factory(now, request, cacheCandidate).get();
     responseSource = cacheStrategy.source;
     networkRequest = cacheStrategy.networkRequest;
     cacheResponse = cacheStrategy.cacheResponse;
 
+    System.out.println("sendRequest() - 5");
     if (responseCache != null) {
       responseCache.trackResponse(responseSource);
     }
 
+    System.out.println("sendRequest() - 6");
     if (cacheCandidate != null
         && (responseSource == ResponseSource.NONE || cacheResponse == null)) {
       closeQuietly(cacheCandidate.body()); // The cache candidate wasn't applicable. Close it.
     }
 
     if (networkRequest != null) {
+      System.out.println("sendRequest() - 7");
       // Open a connection unless we inherited one from a redirect.
       if (connection == null) {
         connect(networkRequest);
       }
 
+      System.out.println("sendRequest() - 8");
       // Blow up if we aren't the current owner of the connection.
       if (connection.getOwner() != this && !connection.isSpdy()) throw new AssertionError();
 
+      System.out.println("sendRequest() - 9");
       transport = (Transport) connection.newTransport(this);
 
       // Create a request body if we don't have one already. We'll already have
       // one if we're retrying a failed POST.
+      System.out.println("sendRequest() - 9");
       if (hasRequestBody() && requestBodyOut == null) {
         requestBodyOut = transport.createRequestBody(request);
       }
+      System.out.println("sendRequest() - 10");
 
     } else {
       // We're using a cached response. Recycle a connection we may have inherited from a redirect.
+      System.out.println("sendRequest() - 11");
       if (connection != null) {
         client.getConnectionPool().recycle(connection);
         connection = null;
       }
 
       // No need for the network! Promote the cached response immediately.
+      System.out.println("sendRequest() - 12");
       this.userResponse = cacheResponse.newBuilder()
           .request(userRequest)
           .priorResponse(stripBody(priorResponse))
           .cacheResponse(stripBody(cacheResponse))
           .build();
+      System.out.println("sendRequest() - 13");
       if (userResponse.body() != null) {
         initContentStream(userResponse.body().source());
       }
     }
+      System.out.println("sendRequest() - 14");
   }
 
   private static Response stripBody(Response response) {

@@ -67,7 +67,7 @@ public final class InflaterSource implements Source {
         int bytesInflated = inflater.inflate(tail.data, tail.limit, Segment.SIZE - tail.limit);
         if (bytesInflated > 0) {
           tail.limit += bytesInflated;
-          sink.size += bytesInflated;
+          sink.size.add(bytesInflated);
           return bytesInflated;
         }
         if (inflater.finished() || inflater.needsDictionary()) {

@@ -214,15 +214,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
   }
 
   @Override public final OutputStream getOutputStream() throws IOException {
+    System.out.println("This is getOutputStream() - 1");
     connect();
 
+    System.out.println("This is getOutputStream() - 2");
     BufferedSink sink = httpEngine.getBufferedRequestBody();
+    System.out.println("This is getOutputStream() - 3");
     if (sink == null) {
       throw new ProtocolException("method does not support a request body: " + method);
     } else if (httpEngine.hasResponse()) {
       throw new ProtocolException("cannot write request body after response has been read");
     }
 
+    System.out.println("This is getOutputStream() - 4");
     return sink.outputStream();
   }
 
@@ -379,8 +383,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
    */
   private boolean execute(boolean readResponse) throws IOException {
     try {
+      System.out.println("This is execute() - 1");
       httpEngine.sendRequest();
+      System.out.println("This is execute() - 2");
       route = httpEngine.getRoute();
+      System.out.println("This is execute() - 3");
       handshake = httpEngine.getConnection() != null
           ? httpEngine.getConnection().getHandshake()
           : null;
@@ -390,7 +397,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
       return true;
     } catch (IOException e) {
+      System.out.println("This is execute() - 4");
       HttpEngine retryEngine = httpEngine.recover(e);
+      System.out.println("This is execute() - 5");
       if (retryEngine != null) {
         httpEngine = retryEngine;
         return false;

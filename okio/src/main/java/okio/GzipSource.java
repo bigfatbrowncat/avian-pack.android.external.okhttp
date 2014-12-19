@@ -71,7 +71,7 @@ public final class GzipSource implements Source {
 
     // Attempt to read at least a byte of the body. If we do, we're done.
     if (section == SECTION_BODY) {
-      long offset = sink.size;
+      long offset = sink.size.get();
       long result = inflaterSource.read(sink, byteCount);
       if (result != -1) {
         updateCrc(sink, offset, result);

@@ -150,8 +150,8 @@ final class RealBufferedSink implements BufferedSink {
 
   @Override public void flush() throws IOException {
     if (closed) throw new IllegalStateException("closed");
-    if (buffer.size > 0) {
-      sink.write(buffer, buffer.size);
+    if (buffer.size.get() > 0) {
+      sink.write(buffer, buffer.size.get());
     }
     sink.flush();
   }
@@ -163,8 +163,8 @@ final class RealBufferedSink implements BufferedSink {
     // to close the sink; otherwise we risk leaking resources.
     Throwable thrown = null;
     try {
-      if (buffer.size > 0) {
-        sink.write(buffer, buffer.size);
+      if (buffer.size.get() > 0) {
+        sink.write(buffer, buffer.size.get());
       }
     } catch (Throwable e) {
       thrown = e;

@@ -46,7 +46,7 @@ public final class DeflaterSink implements Sink {
 
   @Override public void write(OkBuffer source, long byteCount)
       throws IOException {
-    checkOffsetAndCount(source.size, 0, byteCount);
+    checkOffsetAndCount(source.size.get(), 0, byteCount);
     while (byteCount > 0) {
       // Share bytes from the head segment of 'source' with the deflater.
       Segment head = source.head;
@@ -57,7 +57,7 @@ public final class DeflaterSink implements Sink {
       deflate(false);
 
       // Mark those bytes as read.
-      source.size -= toDeflate;
+      source.size.dec(toDeflate);
       head.pos += toDeflate;
       if (head.pos == head.limit) {
         source.head = head.pop();
@@ -83,7 +83,7 @@ public final class DeflaterSink implements Sink {
 
       if (deflated > 0) {
         s.limit += deflated;
-        buffer.size += deflated;
+        buffer.size.add(deflated);
         sink.emitCompleteSegments();
       } else if (deflater.needsInput()) {
         return;
